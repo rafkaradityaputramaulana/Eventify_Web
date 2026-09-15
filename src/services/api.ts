@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { User, EventItem, Order, DashboardStats, SystemConfig, EventStatus, UserRole } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://139.190.96.203:8093/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leonard-tremendous-florida-graduated.trycloudflare.com/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
