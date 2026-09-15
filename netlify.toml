@@ -1,5 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# 1. Reverse Proxy ke API VPS via Cloudflare Tunnel (HTTPS)
 [[redirects]]
-  from = "/api/*"
-  to = "http://139.190.96.203:8093/api/:splat"
+  from = "/api/v1/*"
+  to = "https://leonard-tremendous-florida-graduated.trycloudflare.com/api/v1/:splat"
   status = 200
   force = true
+
+# 2. Routing fallback untuk React Router (Single Page Application / SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
