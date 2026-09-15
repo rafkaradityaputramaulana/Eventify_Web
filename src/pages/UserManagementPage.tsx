@@ -30,12 +30,12 @@ export const UserManagementPage: React.FC = () => {
     if (!usr) return 'customer';
     const raw = usr.role_id ?? usr.role ?? usr.id_role;
 
-    if (raw === 1 || raw === '1' || String(raw).toLowerCase() === 'admin') return 'admin';
+    if (raw === 1 || raw === '1' || String(raw ?? '').toLowerCase() === 'admin') return 'admin';
     if (
       raw === 2 ||
       raw === '2' ||
-      String(raw).toLowerCase() === 'organizer' ||
-      String(raw).toLowerCase() === 'panitia'
+      String(raw ?? '').toLowerCase() === 'organizer' ||
+      String(raw ?? '').toLowerCase() === 'panitia'
     ) {
       return 'organizer';
     }
@@ -70,7 +70,6 @@ export const UserManagementPage: React.FC = () => {
     setIsUpdatingRole(true);
 
     try {
-      // Mengirim string role ('admin' | 'organizer' | 'customer') sesuai ekspektasi service API
       await eventifyApi.updateUserRole(selectedUser.id, newRole);
 
       if (typeof updateUserRoleState === 'function') {
@@ -96,10 +95,14 @@ export const UserManagementPage: React.FC = () => {
   const filteredUsers = safeUsers.filter((usr) => {
     if (!usr) return false;
 
-    const query = searchQuery.toLowerCase();
-    const name = (usr.name || '').toLowerCase();
-    const email = (usr.email || '').toLowerCase();
-    const phone = usr.phone || (usr as any).phone_number || '';
+    // Safe parsing untuk pencarian string
+    const query = (searchQuery ?? '').toLowerCase();
+    const name = String(usr.name ?? '').toLowerCase();
+    const email = String(usr.email ?? '').toLowerCase();
+    
+    // Penanganan safe phone string
+    const rawPhone = usr.phone ?? (usr as any).phone_number ?? '';
+    const phone = String(rawPhone ?? '').replace(/\s+/g, '');
 
     const matchesSearch =
       name.includes(query) ||
@@ -194,6 +197,7 @@ export const UserManagementPage: React.FC = () => {
         >
           {filteredUsers.map((usr) => {
             const userRole = getRoleString(usr);
+            const userPhone = usr.phone || (usr as any).phone_number || '-';
 
             return (
               <tr key={usr.id} className="hover:bg-neo-mint/15 transition-colors">
@@ -216,7 +220,7 @@ export const UserManagementPage: React.FC = () => {
                 <td className="px-4 py-3 font-jakarta text-xs text-neo-dark border-r-2 border-neo-dark">
                   <p className="font-semibold">{usr.email || '-'}</p>
                   <span className="text-[11px] text-gray-500 font-bold">
-                    📱 {usr.phone || (usr as any).phone_number || '-'}
+                    📱 {userPhone}
                   </span>
                 </td>
 

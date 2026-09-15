@@ -17,7 +17,17 @@ export const ProtectedRoute: React.FC = () => {
     );
   }
 
-  if (!isAuthenticated || !user || user.role !== 'admin') {
+  // Cast ke 'any' untuk keamanan pengecekan tipe data role
+  const userData = user as any;
+  const rawRole = userData?.role ?? userData?.role_id ?? userData?.id_role;
+
+  const isAdmin =
+    rawRole === 1 ||
+    rawRole === '1' ||
+    String(rawRole ?? '').toLowerCase() === 'admin';
+
+  // Jika tidak terautentikasi / user null / bukan admin -> Wajib tendang ke /login
+  if (!isAuthenticated || !user || !isAdmin) {
     return <Navigate to="/login" replace />;
   }
 

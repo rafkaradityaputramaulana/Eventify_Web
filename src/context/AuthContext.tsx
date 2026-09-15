@@ -16,14 +16,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('eventify_admin_user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    try {
+      const savedUser = localStorage.getItem('eventify_admin_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
   });
+
   const [token, setToken] = useState<string | null>(() => {
     return localStorage.getItem('eventify_admin_token');
   });
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // Sync state user ke localStorage
   useEffect(() => {
     if (user) {
       localStorage.setItem('eventify_admin_user', JSON.stringify(user));
@@ -32,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
+  // Sync state token ke localStorage
   useEffect(() => {
     if (token) {
       localStorage.setItem('eventify_admin_token', token);
@@ -45,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await eventifyApi.login(email, pass);
 
-      // Strict role check: Admin Only
+      // Pastikan hanya akun dengan role admin yang diizinkan masuk
       if (data.user.role !== 'admin') {
         throw new Error('Akses Ditolak: Khusus Administrator');
       }
@@ -87,6 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// Custom Hook untuk konsumsi context di komponen lain
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

@@ -32,8 +32,11 @@ export const App: React.FC = () => {
               </Route>
             </Route>
 
-            {/* Fallback Redirect */}
-            <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+            {/* Root Route Redirect */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+
+            {/* Fallback Redirect - Arahkan ke /login saat unauthorized / route nyasar */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </BrowserRouter>
       </SystemProvider>

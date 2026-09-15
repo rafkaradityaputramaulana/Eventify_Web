@@ -7,8 +7,10 @@ import {
   Receipt,
   ShieldAlert,
   Sparkles,
+  LogOut,
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,6 +18,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { logout } = useAuth();
+
   const navItems = [
     {
       label: 'Dashboard',
@@ -46,6 +50,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       badgeColor: 'pink' as const,
     },
   ];
+
+  const handleLogout = () => {
+    try {
+      // 1. Jalankan fungsi reset state di AuthContext
+      logout();
+    } catch (e) {
+      console.error('Error saat logout:', e);
+    } finally {
+      // 2. Bersihkan seluruh penyimpanan lokal secara langsung
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // 3. Pindah langsung ke halaman login dengan hard navigation
+      window.location.href = '/login';
+    }
+  };
 
   return (
     <>
@@ -105,19 +125,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* Sidebar Footer Info */}
-        <div className="p-4 bg-white rounded-2xl border-3 border-neo-dark shadow-neo flex items-center gap-3">
-          <div className="p-2 bg-neo-pink rounded-xl border-2 border-neo-dark shrink-0">
-            <Sparkles size={20} className="text-neo-dark" />
+        {/* Sidebar Footer Info & Logout Button */}
+        <div className="space-y-3">
+          <div className="p-4 bg-white rounded-2xl border-3 border-neo-dark shadow-neo flex items-center gap-3">
+            <div className="p-2 bg-neo-pink rounded-xl border-2 border-neo-dark shrink-0">
+              <Sparkles size={20} className="text-neo-dark" />
+            </div>
+            <div className="overflow-hidden">
+              <p className="font-space font-extrabold text-xs text-neo-dark uppercase truncate">
+                Eventify Web Portal
+              </p>
+              <p className="font-jakarta text-[11px] font-semibold text-emerald-800 truncate">
+                Role: Administrator
+              </p>
+            </div>
           </div>
-          <div className="overflow-hidden">
-            <p className="font-space font-extrabold text-xs text-neo-dark uppercase truncate">
-              Eventify Web Portal
-            </p>
-            <p className="font-jakarta text-[11px] font-semibold text-emerald-800 truncate">
-              Role: Administrator
-            </p>
-          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-neo-pink hover:bg-red-400 text-neo-dark rounded-xl border-2.5 border-neo-dark font-space font-extrabold text-sm shadow-neo transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
+          >
+            <LogOut size={18} />
+            <span>Keluar / Logout</span>
+          </button>
         </div>
       </aside>
     </>
