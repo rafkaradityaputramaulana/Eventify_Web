@@ -5,7 +5,7 @@
 # 1. Reverse Proxy ke API VPS via Cloudflare Tunnel (HTTPS)
 [[redirects]]
   from = "/api/v1/*"
-  to = "https://leonard-tremendous-florida-graduated.trycloudflare.com/api/v1/:splat"
+  to = "https://photograph-revision-tell-lynn.trycloudflare.com/api/v1"
   status = 200
   force = true
 

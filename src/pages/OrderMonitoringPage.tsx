@@ -6,11 +6,11 @@ import {
   Download,
   Eye,
   CreditCard,
-  QrCode,
   Building2,
   Clock,
   CheckCircle,
   XCircle,
+  QrCode,
 } from 'lucide-react';
 import type { Order } from '../types';
 import { eventifyApi } from '../services/api';
@@ -47,10 +47,11 @@ export const OrderMonitoringPage: React.FC = () => {
   }, []);
 
   const filteredOrders = orders.filter((ord) => {
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      ord.order_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ord.user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ord.event_title.toLowerCase().includes(searchQuery.toLowerCase());
+      (ord.order_code || '').toLowerCase().includes(query) ||
+      (ord.user_name || '').toLowerCase().includes(query) ||
+      (ord.event_title || '').toLowerCase().includes(query);
 
     const matchesStatus =
       statusFilter === 'all' || ord.status === statusFilter;
@@ -63,7 +64,7 @@ export const OrderMonitoringPage: React.FC = () => {
       style: 'currency',
       currency: 'IDR',
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(amount || 0);
   };
 
   // CSV Export Feature
@@ -82,14 +83,14 @@ export const OrderMonitoringPage: React.FC = () => {
     ];
 
     const rows = filteredOrders.map((o) => [
-      `"${o.order_code}"`,
-      `"${o.user_name}"`,
-      `"${o.user_email}"`,
-      `"${o.event_title.replace(/"/g, '""')}"`,
-      o.total_amount,
-      `"${o.payment_method.toUpperCase()}"`,
-      `"${o.status.toUpperCase()}"`,
-      `"${new Date(o.created_at).toLocaleString('id-ID')}"`,
+      `"${o.order_code || ''}"`,
+      `"${o.user_name || ''}"`,
+      `"${o.user_email || ''}"`,
+      `"${(o.event_title || '').replace(/"/g, '""')}"`,
+      o.total_amount || 0,
+      `"${(o.payment_method || '').toUpperCase()}"`,
+      `"${(o.status || '').toUpperCase()}"`,
+      `"${o.created_at ? new Date(o.created_at).toLocaleString('id-ID') : ''}"`,
     ]);
 
     const csvContent =
@@ -200,30 +201,32 @@ export const OrderMonitoringPage: React.FC = () => {
               {/* Kode Order & Waktu */}
               <td className="px-4 py-3 font-jakarta text-xs border-r-2 border-neo-dark">
                 <span className="font-space font-extrabold text-xs text-neo-dark block">
-                  {ord.order_code}
+                  {ord.order_code || '-'}
                 </span>
                 <span className="text-[10px] text-gray-500 font-semibold block mt-0.5">
-                  {new Date(ord.created_at).toLocaleString('id-ID', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
+                  {ord.created_at
+                    ? new Date(ord.created_at).toLocaleString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                    : '-'}
                 </span>
               </td>
 
               {/* Pembeli */}
               <td className="px-4 py-3 font-jakarta text-xs text-neo-dark border-r-2 border-neo-dark">
-                <p className="font-bold">{ord.user_name}</p>
+                <p className="font-bold">{ord.user_name || '-'}</p>
                 <span className="text-[11px] text-gray-500 font-medium">
-                  {ord.user_email}
+                  {ord.user_email || '-'}
                 </span>
               </td>
 
               {/* Judul Event */}
               <td className="px-4 py-3 font-jakarta text-xs font-bold text-neo-dark border-r-2 border-neo-dark max-w-[200px] truncate">
-                {ord.event_title}
+                {ord.event_title || '-'}
               </td>
 
               {/* Total Harga */}
@@ -239,7 +242,7 @@ export const OrderMonitoringPage: React.FC = () => {
                   ) : (
                     <Building2 size={14} />
                   )}
-                  {ord.payment_method.replace('_', ' ')}
+                  {(ord.payment_method || '-').replace('_', ' ')}
                 </span>
               </td>
 
@@ -254,7 +257,7 @@ export const OrderMonitoringPage: React.FC = () => {
                       : 'pink'
                   }
                 >
-                  {ord.status.toUpperCase()}
+                  {(ord.status || 'UNKNOWN').toUpperCase()}
                 </Badge>
               </td>
 
@@ -307,7 +310,7 @@ export const OrderMonitoringPage: React.FC = () => {
                   ) : (
                     <XCircle size={22} />
                   )}
-                  {selectedOrder.status.toUpperCase()}
+                  {(selectedOrder.status || '').toUpperCase()}
                 </h4>
               </div>
               <div className="text-right">
@@ -327,10 +330,10 @@ export const OrderMonitoringPage: React.FC = () => {
                   👤 Informasi Pembeli
                 </h5>
                 <p className="font-jakarta text-sm font-bold text-neo-dark">
-                  {selectedOrder.user_name}
+                  {selectedOrder.user_name || '-'}
                 </p>
                 <p className="font-jakarta text-xs text-gray-600 font-semibold">
-                  {selectedOrder.user_email}
+                  {selectedOrder.user_email || '-'}
                 </p>
               </div>
 
@@ -339,10 +342,10 @@ export const OrderMonitoringPage: React.FC = () => {
                   🎉 Event Terkait
                 </h5>
                 <p className="font-jakarta text-sm font-bold text-neo-dark">
-                  {selectedOrder.event_title}
+                  {selectedOrder.event_title || '-'}
                 </p>
                 <span className="font-jakarta text-xs text-gray-600 font-semibold">
-                  Waktu: {new Date(selectedOrder.created_at).toLocaleString('id-ID')}
+                  Waktu: {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString('id-ID') : '-'}
                 </span>
               </div>
             </div>
@@ -353,14 +356,14 @@ export const OrderMonitoringPage: React.FC = () => {
                 🎟️ Rincian Item Tiket Dibeli
               </h5>
               <div className="space-y-2">
-                {selectedOrder.items.map((item, idx) => (
+                {(selectedOrder.items || []).map((item, idx) => (
                   <div
                     key={idx}
                     className="p-3 bg-neo-bg rounded-lg border-2 border-neo-dark flex items-center justify-between font-jakarta text-xs"
                   >
                     <div>
                       <span className="font-bold text-neo-dark text-sm block">
-                        {item.ticket_tier_name}
+                        {item.ticket_tier_name || 'Tiket'}
                       </span>
                       <span className="text-gray-600 font-semibold">
                         {item.quantity} x {formatRupiah(item.price_per_item)}
@@ -377,9 +380,9 @@ export const OrderMonitoringPage: React.FC = () => {
             {/* Payment Gateway Information (QRIS / Virtual Account) */}
             <div className="p-4 bg-neo-yellow/25 rounded-xl border-2 border-neo-dark space-y-2">
               <h5 className="font-space font-extrabold text-xs uppercase text-neo-dark flex items-center gap-1.5">
-                <CreditCard size={16} /> Data Pembayaran ({selectedOrder.payment_method.toUpperCase()})
+                <CreditCard size={16} /> Data Pembayaran ({(selectedOrder.payment_method || '').toUpperCase()})
               </h5>
-              {selectedOrder.payment_details.qris_url && (
+              {selectedOrder.payment_details?.qris_url && (
                 <div className="flex items-center gap-4 pt-2">
                   <img
                     src={selectedOrder.payment_details.qris_url}
@@ -397,7 +400,7 @@ export const OrderMonitoringPage: React.FC = () => {
                 </div>
               )}
 
-              {selectedOrder.payment_details.va_number && (
+              {selectedOrder.payment_details?.va_number && (
                 <div className="pt-2">
                   <span className="font-space font-extrabold text-xs text-neo-dark">
                     Nomor Virtual Account:
